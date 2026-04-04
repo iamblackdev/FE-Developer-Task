@@ -1,0 +1,23 @@
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  color: var(--color-error);
+  margin: 24px;
+}
+
+.icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  line-height: 1.6;
+}
+
+.message {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
