@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import type { SwapiCategory } from '@/types';
@@ -12,7 +12,7 @@ import styles from './page.module.css';
 
 const VALID_CATEGORIES: SwapiCategory[] = ['films', 'people', 'planets', 'species', 'starships', 'vehicles'];
 
-const EXCLUDED_FIELDS = new Set(['created', 'edited', 'url']);
+const EXCLUDED_FIELDS = new Set(['url']);
 
 export default function DetailPage() {
 	const params = useParams();
@@ -23,26 +23,27 @@ export default function DetailPage() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
-	useEffect(() => {
-		if (!VALID_CATEGORIES.includes(category as SwapiCategory)) {
-			setError(`"${category}" is not a valid category.`);
+	const fetchData = useCallback(async () => {
+		if (!VALID_CATEGORIES.includes(category as SwapiCategory)) return;
+		try {
+			const data = await fetchById<Record<string, unknown>>(category as SwapiCategory, id);
+			setData(data);
+		} catch {
+			setData(null);
+			setError('Failed to load.');
+		} finally {
 			setLoading(false);
-			return;
 		}
-
-		setLoading(true);
-		setError(null);
-		setData(null);
-
-		fetchById<Record<string, unknown>>(category as SwapiCategory, id)
-			.then(setData)
-			.catch((err) => setError(err instanceof Error ? err.message : 'Failed to load.'))
-			.finally(() => setLoading(false));
 	}, [category, id]);
 
-	const displayTitle = data ? String(data.title ?? data.name ?? `${category} #${id}`) : `${category.charAt(0).toUpperCase() + category.slice(1)} #${id}`;
+	useEffect(() => {
+		fetchData();
+	}, [fetchData]);
 
-	const fields = data ? Object.entries(data).filter(([key]) => !EXCLUDED_FIELDS.has(key)) : [];
+	const fields = useMemo(() => {
+		if (data) return Object.entries(data).filter(([key]) => !EXCLUDED_FIELDS.has(key));
+		return [];
+	}, [data]);
 
 	return (
 		<div className={styles.page}>
@@ -51,7 +52,7 @@ export default function DetailPage() {
 					<Link href="/" className={styles.backBtn}>
 						← Back to Explorer
 					</Link>
-					{!loading && !error && <span className={styles.categoryTag}>{category.charAt(0).toUpperCase() + category.slice(1)}</span>}
+					{!loading && !error && <span className={styles.categoryTag}>{category}</span>}
 				</div>
 
 				{loading && <LoadingSpinner label="Loading details…" />}
@@ -59,7 +60,7 @@ export default function DetailPage() {
 
 				{data && !loading && (
 					<>
-						<h1 className={styles.title}>{displayTitle}</h1>
+						<h1 className={styles.title}>{String(data.title || data.name)}</h1>
 						<dl className={styles.grid}>
 							{fields.map(([key, value]) => (
 								<DetailCard key={key} fieldKey={key} value={value} />

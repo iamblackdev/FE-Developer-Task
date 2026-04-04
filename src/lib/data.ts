@@ -52,7 +52,6 @@ export const COLUMNS: Record<SwapiCategory, Column[]> = {
 };
 
 export const DEFAULT_CATEGORY: SwapiCategory = 'planets';
-export const RECENT_KEY = 'sw-recent-category';
 
 export const SEARCH_FIELD: Record<SwapiCategory, string> = {
 	films: 'title',

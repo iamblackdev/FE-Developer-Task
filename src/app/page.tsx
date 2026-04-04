@@ -6,7 +6,7 @@ import { fetchAllResults } from '@/lib/swapi';
 import Controls from '@/components/Controls/Controls';
 import DataTable from '@/components/DataTable/DataTable';
 import styles from './page.module.css';
-import { DEFAULT_CATEGORY, RECENT_KEY, SEARCH_FIELD } from '@/lib/data';
+import { DEFAULT_CATEGORY, SEARCH_FIELD } from '@/lib/data';
 
 export default function Home() {
 	const [category, setCategory] = useState<SwapiCategory>(DEFAULT_CATEGORY);
@@ -15,14 +15,8 @@ export default function Home() {
 	const [error, setError] = useState<string | null>(null);
 	const [search, setSearch] = useState('');
 	const [sort, setSort] = useState('default');
-	const [recentCategory, setRecentCategory] = useState<SwapiCategory | null>(null);
 
 	const categoryStateRef = useRef<Partial<Record<SwapiCategory, CategoryState>>>({});
-
-	useEffect(() => {
-		const stored = localStorage.getItem(RECENT_KEY) as SwapiCategory | null;
-		if (stored) setRecentCategory(stored);
-	}, []);
 
 	const loadCategory = useCallback(async (cat: SwapiCategory) => {
 		setLoading(true);
@@ -31,8 +25,6 @@ export default function Home() {
 		try {
 			const results = await fetchAllResults<Record<string, unknown>>(cat);
 			setRawData(results);
-			setRecentCategory(cat);
-			localStorage.setItem(RECENT_KEY, cat);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : 'An unexpected error occurred.');
 		} finally {
@@ -82,15 +74,7 @@ export default function Home() {
 
 	return (
 		<main className={styles.main}>
-			<Controls
-				category={category}
-				search={search}
-				sort={sort}
-				recentCategory={recentCategory}
-				onCategoryChange={handleCategoryChange}
-				onSearchChange={setSearch}
-				onSortChange={setSort}
-			/>
+			<Controls category={category} search={search} sort={sort} onCategoryChange={handleCategoryChange} onSearchChange={setSearch} onSortChange={setSort} />
 			<div className={styles.tableArea}>
 				<DataTable category={category} data={displayData} totalItems={rawData.length} loading={loading} error={error} />
 			</div>
