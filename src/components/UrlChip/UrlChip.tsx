@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import styles from './UrlChip.module.css';
-import { formatFieldName, extractCategoryAndId } from '@/lib/helper';
+import { extractCategoryAndId, getSingularLabel } from '@/lib/helper';
 
 interface UrlChipProps {
 	url: string;
@@ -23,16 +23,4 @@ export default function UrlChip({ url }: UrlChipProps) {
 			{label}
 		</button>
 	);
-}
-
-function getSingularLabel(category: string): string {
-	const map: Record<string, string> = {
-		people: 'Person',
-		planets: 'Planet',
-		films: 'Film',
-		species: 'Species',
-		vehicles: 'Vehicle',
-		starships: 'Starship',
-	};
-	return map[category] ?? formatFieldName(category);
 }

@@ -1,10 +1,3 @@
-export const formatLabel = (key: string): string => {
-	return key
-		.split('_')
-		.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-		.join(' ');
-};
-
 /**
  * Converts a snake_case field name to a Title Case label.
  * e.g. "birth_year" → "Birth Year"
@@ -54,3 +47,18 @@ export function isSwapiUrl(value: unknown): value is string {
 export function isSwapiUrlArray(value: unknown): value is string[] {
 	return Array.isArray(value) && value.length > 0 && value.every((v) => isSwapiUrl(v));
 }
+
+/**
+ * Returns the sigular label
+ */
+export const getSingularLabel = (category: string): string => {
+	const map: Record<string, string> = {
+		people: 'Person',
+		planets: 'Planet',
+		films: 'Film',
+		species: 'Species',
+		vehicles: 'Vehicle',
+		starships: 'Starship',
+	};
+	return map[category] ?? formatFieldName(category);
+};
