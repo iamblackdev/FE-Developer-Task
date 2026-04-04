@@ -1,0 +1,25 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  background: #f1f3f5;
+  border: 1px solid #ced4da;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  color: #1a1a2e;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.chip:hover {
+  background: #FFE81F;
+  border-color: #e6d000;
+  color: #1a1a2e;
+}
+
+.chip:focus-visible {
+  outline: 2px solid #FFE81F;
+  outline-offset: 2px;
+}
