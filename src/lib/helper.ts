@@ -1,3 +1,5 @@
+import { SwapiCategory } from '@/types';
+
 /**
  * Converts a snake_case field name to a Title Case label.
  * e.g. "birth_year" → "Birth Year"
@@ -61,4 +63,17 @@ export const getSingularLabel = (category: string): string => {
 		starships: 'Starship',
 	};
 	return map[category] ?? formatFieldName(category);
+};
+
+/**
+ * Returns the sort option for controls
+ */
+
+export const getSortOptions = (category: SwapiCategory) => {
+	const field = category === 'films' ? 'Title' : 'Name';
+	return [
+		{ value: 'default', label: 'Default' },
+		{ value: `${field.toLowerCase()}-asc`, label: `${field} A→Z` },
+		{ value: `${field.toLowerCase()}-desc`, label: `${field} Z→A` },
+	];
 };
