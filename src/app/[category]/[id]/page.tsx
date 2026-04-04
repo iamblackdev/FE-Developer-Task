@@ -62,7 +62,7 @@ export default function DetailPage() {
 						<h1 className={styles.title}>{displayTitle}</h1>
 						<dl className={styles.grid}>
 							{fields.map(([key, value]) => (
-								<DetailCard key={key} fieldName={key} value={value} />
+								<DetailCard key={key} fieldKey={key} value={value} />
 							))}
 						</dl>
 					</>

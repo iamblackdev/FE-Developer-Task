@@ -1,68 +1,54 @@
 import Link from 'next/link';
 import { extractPath, isSwapiUrl } from '@/lib/swapi';
 import styles from './DetailCard.module.css';
-
-function formatLabel(key: string): string {
-  return key
-    .split('_')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
-}
-
-function renderValue(value: unknown): React.ReactNode {
-  if (Array.isArray(value)) {
-    if (value.length === 0) {
-      return <span className={styles.muted}>None</span>;
-    }
-    return (
-      <ul className={styles.list}>
-        {value.map((item, i) =>
-          isSwapiUrl(item) ? (
-            <li key={i}>
-              <Link href={extractPath(item)} className={styles.link}>
-                {extractPath(item)}
-              </Link>
-            </li>
-          ) : (
-            <li key={i} className={styles.listItem}>
-              {String(item)}
-            </li>
-          )
-        )}
-      </ul>
-    );
-  }
-
-  if (isSwapiUrl(value)) {
-    return (
-      <Link href={extractPath(value)} className={styles.link}>
-        {extractPath(value)}
-      </Link>
-    );
-  }
-
-  if (value === null || value === undefined || value === '') {
-    return <span className={styles.muted}>N/A</span>;
-  }
-
-  const str = String(value);
-  if (str.length > 180) {
-    return <p className={styles.longText}>{str}</p>;
-  }
-
-  return <span>{str}</span>;
-}
+import { formatDate, isSwapiUrlArray } from '@/lib/helper';
+import { useMemo } from 'react';
+import UrlChip from '../UrlChip/UrlChip';
 
 interface Props {
-  fieldName: string;
-  value: unknown;
+	fieldKey: string;
+	value: unknown;
 }
 
-export default function DetailCard({ fieldName, value }: Props) {
-  return (
-    <div className={styles.card}>
-      <dt className={styles.label}>{formatLabel(fieldName)}</dt>
-      <dd className={styles.value}>{renderValue(value)}</dd>
-    </div>
-  );
+export default function DetailCard({ fieldKey, value }: Props) {
+	const renderValue = useMemo(() => {
+		if (fieldKey === 'created' || fieldKey === 'edited') {
+			return <span className={styles.value}>{formatDate(String(value))}</span>;
+		}
+
+		// Opening crawl — monospace block
+		if (fieldKey === 'opening_crawl') {
+			return <pre className={styles.crawl}>{String(value)}</pre>;
+		}
+
+		// Array of SWAPI URLs
+		if (isSwapiUrlArray(value)) {
+			return (
+				<div className={styles.chips}>
+					{(value as string[]).map((url) => (
+						<UrlChip key={url} url={url} />
+					))}
+				</div>
+			);
+		}
+
+		// Single SWAPI URL (e.g. homeworld)
+		if (isSwapiUrl(value)) {
+			return (
+				<div className={styles.chips}>
+					<UrlChip url={value as string} />
+				</div>
+			);
+		}
+
+		// Plain value
+		return <span className={styles.value}>{value === null || value === undefined || value === '' ? '—' : String(value)}</span>;
+	}, [value]);
+
+	return (
+		<div className={styles.card}>
+			<dt className={styles.label}>{fieldKey}</dt>
+			<dd className={styles.value}>{renderValue}</dd>
+		</div>
+	);
 }
