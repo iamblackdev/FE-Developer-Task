@@ -50,3 +50,15 @@ export const COLUMNS: Record<SwapiCategory, Column[]> = {
 		{ key: 'cargo_capacity', label: 'Cargo Capacity' },
 	],
 };
+
+export const DEFAULT_CATEGORY: SwapiCategory = 'planets';
+export const RECENT_KEY = 'sw-recent-category';
+
+export const SEARCH_FIELD: Record<SwapiCategory, string> = {
+	films: 'title',
+	people: 'name',
+	planets: 'name',
+	species: 'name',
+	starships: 'name',
+	vehicles: 'name',
+};
