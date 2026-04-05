@@ -3,14 +3,9 @@ import { buildSwapiUrl } from './helper';
 
 export const BASE_URL = 'https://swapi.dev/api';
 
-/**
- * Fetches a single page from the SWAPI list endpoint.
- * Search is delegated to SWAPI's ?search= param.
- * Sorting is NOT supported by SWAPI and must be applied client-side.
- */
 export async function fetchPage<T>(category: SwapiCategory, page: number, search?: string): Promise<{ results: T[]; count: number }> {
 	const url = buildSwapiUrl(category, page, search);
-	const res = await fetch(url);
+	const res = await fetch(url, { next: { revalidate: 3600 } });
 	if (!res.ok) {
 		throw new Error(`Failed to fetch ${category}: ${res.status} ${res.statusText}`);
 	}
@@ -19,7 +14,7 @@ export async function fetchPage<T>(category: SwapiCategory, page: number, search
 }
 
 export async function fetchById<T>(category: SwapiCategory, id: string): Promise<T> {
-	const res = await fetch(`${BASE_URL}/${category}/${id}/`);
+	const res = await fetch(`${BASE_URL}/${category}/${id}/`, { next: { revalidate: 3600 } });
 	if (!res.ok) {
 		throw new Error(`Failed to fetch ${category}/${id}: ${res.status} ${res.statusText}`);
 	}
