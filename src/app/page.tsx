@@ -1,82 +1,73 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import type { SwapiCategory, CategoryState } from '@/types';
-import { fetchAllResults } from '@/lib/swapi';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { SwapiCategory } from '@/types';
+import { fetchPage } from '@/lib/swapi';
 import Controls from '@/components/Controls/Controls';
 import DataTable from '@/components/DataTable/DataTable';
+import Pagination from '@/components/Pagination/Pagination';
+import { usePersistedControls } from '@/hooks/usePersistedControls';
 import styles from './page.module.css';
-import { DEFAULT_CATEGORY, SEARCH_FIELD } from '@/lib/data';
+import { getTotalPages } from '@/lib/helper';
+import { PAGE_SIZE } from '@/lib/data';
 
 export default function Home() {
-	const [category, setCategory] = useState<SwapiCategory>(DEFAULT_CATEGORY);
+	const { category, search, sort, setCategory, setSearch, setSort } = usePersistedControls();
+
 	const [rawData, setRawData] = useState<Record<string, unknown>[]>([]);
+	const [totalCount, setTotalCount] = useState(0);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [search, setSearch] = useState('');
-	const [sort, setSort] = useState('default');
+	const [page, setPage] = useState(1);
 
-	const categoryStateRef = useRef<Partial<Record<SwapiCategory, CategoryState>>>({});
+	const handleSearchChange = (value: string) => {
+		setSearch(value);
+		setPage(1);
+	};
 
-	const loadCategory = useCallback(async (cat: SwapiCategory) => {
+	const handleCategoryChange = (cat: SwapiCategory) => {
+		setCategory(cat);
+	};
+
+	// Fetch the current page whenever category, page, or search changes.
+	const fetchData = useCallback(async () => {
 		setLoading(true);
 		setError(null);
-		setRawData([]);
+
 		try {
-			const results = await fetchAllResults<Record<string, unknown>>(cat);
+			const { results, count } = await fetchPage<Record<string, unknown>>(category, page, search.trim() || undefined);
 			setRawData(results);
+			setTotalCount(count);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : 'An unexpected error occurred.');
+			setError((err as Error).message);
 		} finally {
 			setLoading(false);
 		}
-	}, []);
+	}, [category, page, search]);
 
 	useEffect(() => {
-		loadCategory(category);
-	}, [category, loadCategory]);
+		fetchData();
+	}, [fetchData]);
 
-	const handleCategoryChange = useCallback(
-		(newCat: SwapiCategory) => {
-			categoryStateRef.current[category] = { search, sort };
-			const saved = categoryStateRef.current[newCat];
-			setSearch(saved?.search ?? '');
-			setSort(saved?.sort ?? 'default');
-			setCategory(newCat);
-		},
-		[category, search, sort],
-	);
-
+	// sorting applied to the current page's results.
 	const displayData = useMemo(() => {
-		const field = SEARCH_FIELD[category];
-		let filtered = rawData;
+		if (sort === 'default') return rawData;
+		const sortField = sort.startsWith('title') ? 'title' : 'name';
+		const asc = sort.endsWith('asc');
+		return [...rawData].sort((a, b) => {
+			const cmp = String(a[sortField] ?? '').localeCompare(String(b[sortField] ?? ''));
+			return asc ? cmp : -cmp;
+		});
+	}, [rawData, sort]);
 
-		if (search.trim()) {
-			const q = search.trim().toLowerCase();
-			filtered = filtered.filter((item) =>
-				String(item[field] ?? '')
-					.toLowerCase()
-					.includes(q),
-			);
-		}
-
-		if (sort !== 'default') {
-			const sortField = sort.startsWith('title') ? 'title' : 'name';
-			const asc = sort.endsWith('asc');
-			filtered = [...filtered].sort((a, b) => {
-				const cmp = String(a[sortField] ?? '').localeCompare(String(b[sortField] ?? ''));
-				return asc ? cmp : -cmp;
-			});
-		}
-
-		return filtered;
-	}, [rawData, search, sort, category]);
+	const totalPages = getTotalPages(totalCount, PAGE_SIZE);
 
 	return (
 		<main className={styles.main}>
-			<Controls category={category} search={search} sort={sort} onCategoryChange={handleCategoryChange} onSearchChange={setSearch} onSortChange={setSort} />
+			<Controls category={category} search={search} sort={sort} onCategoryChange={handleCategoryChange} onSearchChange={handleSearchChange} onSortChange={setSort} />
 			<div className={styles.tableArea}>
-				<DataTable category={category} data={displayData} totalItems={rawData.length} loading={loading} error={error} />
+				<DataTable category={category} data={displayData} totalItems={totalCount} loading={loading} error={error} />
+				{!loading && !error && totalPages > 1 && <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />}
 			</div>
 		</main>
 	);

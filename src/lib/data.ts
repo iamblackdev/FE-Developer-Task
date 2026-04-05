@@ -2,6 +2,10 @@ import { SwapiCategory } from '@/types';
 
 export type Column = { key: string; label: string };
 
+export const SWAPI_CATEGORY_KEY = 'swapi-selected-category';
+export const SWAPI_CONTROLS_KEY = 'swapi-controls';
+export const PAGE_SIZE = 10;
+
 export const COLUMNS: Record<SwapiCategory, Column[]> = {
 	people: [
 		{ key: 'name', label: 'Name' },
