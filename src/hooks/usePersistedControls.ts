@@ -20,9 +20,6 @@ interface PersistedControls {
 }
 
 export function usePersistedControls(): PersistedControls {
-	// const [category, setCategory] = useState<SwapiCategory>('planets');
-	// const [search, setSearch] = useState<string>('');
-	// const [sort, setSort] = useState<string>('default');
 	const [category, setCategory] = useState<SwapiCategory>(() => readFromStorage<SwapiCategory>(SWAPI_CATEGORY_KEY) ?? 'planets');
 	const [search, setSearch] = useState<string>(() => readFromStorage<StoredControls>(SWAPI_CONTROLS_KEY)?.search ?? '');
 	const [sort, setSort] = useState<string>(() => readFromStorage<StoredControls>(SWAPI_CONTROLS_KEY)?.sortOrder ?? 'default');

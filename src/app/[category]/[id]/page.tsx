@@ -24,7 +24,11 @@ export default function DetailPage() {
 	const [error, setError] = useState<string | null>(null);
 
 	const fetchData = useCallback(async () => {
-		if (!VALID_CATEGORIES.includes(category as SwapiCategory)) return;
+		if (!VALID_CATEGORIES.includes(category as SwapiCategory)) {
+			setLoading(false);
+			setError('Invalid Category');
+			return;
+		}
 		try {
 			const data = await fetchById<Record<string, unknown>>(category as SwapiCategory, id);
 			setData(data);
