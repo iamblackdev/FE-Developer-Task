@@ -17,7 +17,6 @@ interface Props {
 
 export default function Controls({ category, search, sort, onCategoryChange, onSearchChange, onSortChange }: Props) {
 	const sortOptions = getSortOptions(category);
-	const placeholder = category === 'films' ? 'Search by title…' : 'Search by name…';
 
 	return (
 		<div className={styles.bar}>
@@ -44,7 +43,7 @@ export default function Controls({ category, search, sort, onCategoryChange, onS
 							id="search-input"
 							type="search"
 							className={styles.input}
-							placeholder={placeholder}
+							placeholder={'Search by name or title'}
 							value={search}
 							onChange={(e) => onSearchChange(e.target.value)}
 							autoComplete="off"
