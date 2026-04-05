@@ -69,8 +69,8 @@ export const getSortOptions = (category: SwapiCategory) => {
 	const field = category === 'films' ? 'Title' : 'Name';
 	return [
 		{ value: 'default', label: 'Default' },
-		{ value: `${field.toLowerCase()}-asc`, label: `${field} A→Z` },
-		{ value: `${field.toLowerCase()}-desc`, label: `${field} Z→A` },
+		{ value: `asc`, label: `${field} A→Z` },
+		{ value: `desc`, label: `${field} Z→A` },
 	];
 };
 

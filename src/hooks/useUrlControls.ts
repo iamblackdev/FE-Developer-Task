@@ -9,13 +9,12 @@ import { buildAppUrl, readParams } from '@/lib/helper';
 interface UrlControls {
 	category: SwapiCategory;
 	search: string;
-	sort: string;
 	order: string;
 	page: number;
 	recent: string;
 	setCategory: (cat: SwapiCategory) => void;
 	setSearch: (value: string) => void;
-	setSort: (sort: string, order: string) => void;
+	setSort: (order: string) => void;
 	setPage: (page: number) => void;
 }
 
@@ -37,7 +36,7 @@ export function useUrlControls(): UrlControls {
 	 */
 	const setCategory = useCallback(
 		(cat: SwapiCategory) => {
-			replace({ ...current, category: cat, recent: current.category });
+			replace({ ...current, category: cat, recent: current.category, page: DEFAULT_PAGE });
 		},
 		[current, replace],
 	);
@@ -58,8 +57,8 @@ export function useUrlControls(): UrlControls {
 	 * Pass empty strings to reset to default (removes both params from URL).
 	 */
 	const setSort = useCallback(
-		(sort: string, order: string) => {
-			replace({ ...current, sort, order });
+		(order: string) => {
+			replace({ ...current, order });
 		},
 		[current, replace],
 	);

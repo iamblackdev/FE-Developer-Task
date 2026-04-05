@@ -73,7 +73,10 @@ describe('Landing page — Home', () => {
 
 		it('rehydrates category from the URL param', async () => {
 			mockSearchParams.set('category', 'films');
-			mockFetchPage.mockResolvedValue({ count: 1, results: [{ title: 'A New Hope', episode_id: 4, director: 'George Lucas', release_date: '1977-05-25', url: 'https://swapi.dev/api/films/1/' }] });
+			mockFetchPage.mockResolvedValue({
+				count: 1,
+				results: [{ title: 'A New Hope', episode_id: 4, director: 'George Lucas', release_date: '1977-05-25', url: 'https://swapi.dev/api/films/1/' }],
+			});
 			setup();
 			await waitFor(() => expect(mockFetchPage).toHaveBeenCalledWith('films', 1, undefined));
 		});
@@ -116,10 +119,7 @@ describe('Landing page — Home', () => {
 
 			await user.selectOptions(screen.getByRole('combobox', { name: /category/i }), 'people');
 
-			expect(mockReplace).toHaveBeenCalledWith(
-				expect.stringContaining('category=people'),
-				expect.anything(),
-			);
+			expect(mockReplace).toHaveBeenCalledWith(expect.stringContaining('category=people'), expect.anything());
 		});
 
 		it('includes the previous category as ?recent= in the URL', async () => {
@@ -128,10 +128,7 @@ describe('Landing page — Home', () => {
 
 			await user.selectOptions(screen.getByRole('combobox', { name: /category/i }), 'films');
 
-			expect(mockReplace).toHaveBeenCalledWith(
-				expect.stringContaining('recent=planets'),
-				expect.anything(),
-			);
+			expect(mockReplace).toHaveBeenCalledWith(expect.stringContaining('recent=planets'), expect.anything());
 		});
 	});
 
@@ -140,12 +137,9 @@ describe('Landing page — Home', () => {
 			const { user } = setup();
 			await waitFor(() => screen.getByRole('table'));
 
-			await user.selectOptions(screen.getByRole('combobox', { name: /sort/i }), 'name-asc');
+			await user.selectOptions(screen.getByRole('combobox', { name: /sort/i }), 'asc');
 
-			expect(mockReplace).toHaveBeenCalledWith(
-				expect.stringMatching(/sort=name.*order=asc/),
-				expect.anything(),
-			);
+			expect(mockReplace).toHaveBeenCalledWith(expect.stringMatching(/order=asc/), expect.anything());
 		});
 
 		it('sorts results client-side in ascending order', async () => {
@@ -172,9 +166,7 @@ describe('Landing page — Home', () => {
 		it('shows pagination controls when there are multiple pages', async () => {
 			mockFetchPage.mockResolvedValue({ count: 25, results: PLANET_PAGE.results });
 			setup();
-			await waitFor(() =>
-				expect(screen.getByRole('navigation', { name: /pagination/i })).toBeInTheDocument(),
-			);
+			await waitFor(() => expect(screen.getByRole('navigation', { name: /pagination/i })).toBeInTheDocument());
 		});
 
 		it('does not show pagination when all results fit on one page', async () => {
@@ -190,10 +182,7 @@ describe('Landing page — Home', () => {
 
 			await user.click(screen.getByRole('button', { name: /next page/i }));
 
-			expect(mockReplace).toHaveBeenCalledWith(
-				expect.stringContaining('page=2'),
-				expect.anything(),
-			);
+			expect(mockReplace).toHaveBeenCalledWith(expect.stringContaining('page=2'), expect.anything());
 		});
 	});
 
@@ -201,9 +190,7 @@ describe('Landing page — Home', () => {
 		it('shows an error alert when the fetch fails', async () => {
 			mockFetchPage.mockRejectedValue(new Error('Network error'));
 			setup();
-			await waitFor(() =>
-				expect(screen.getByRole('alert')).toHaveTextContent('Network error'),
-			);
+			await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Network error'));
 		});
 
 		it('does not render the table after a fetch error', async () => {

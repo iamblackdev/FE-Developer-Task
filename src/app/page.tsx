@@ -11,7 +11,7 @@ import { PAGE_SIZE } from '@/lib/data';
 import styles from './page.module.css';
 
 function HomeInner() {
-	const { category, search, sort, order, page, recent, setCategory, setSearch, setSort, setPage } = useUrlControls();
+	const { category, search, order, page, recent, setCategory, setSearch, setSort, setPage } = useUrlControls();
 
 	const [rawData, setRawData] = useState<Record<string, unknown>[]>([]);
 	const [totalCount, setTotalCount] = useState(0);
@@ -39,19 +39,20 @@ function HomeInner() {
 	// Sorting is applied client-side on the current page's results.
 	// SWAPI does not support server-side sorting.
 	const displayData = useMemo(() => {
-		if (!sort || !order) return rawData;
+		const field = category === 'films' ? 'title' : 'name';
+		if (!order) return rawData;
 		const asc = order === 'asc';
 		return [...rawData].sort((a, b) => {
-			const cmp = String(a[sort] ?? '').localeCompare(String(b[sort] ?? ''));
+			const cmp = String(a[field] ?? '').localeCompare(String(b[field] ?? ''));
 			return asc ? cmp : -cmp;
 		});
-	}, [rawData, sort, order]);
+	}, [rawData, order, category]);
 
 	const totalPages = getTotalPages(totalCount, PAGE_SIZE);
 
 	return (
 		<main className={styles.main}>
-			<Controls category={category} search={search} sort={sort} order={order} recent={recent} onCategoryChange={setCategory} onSearchChange={setSearch} onSortChange={setSort} />
+			<Controls category={category} search={search} order={order} recent={recent} onCategoryChange={setCategory} onSearchChange={setSearch} onSortChange={setSort} />
 			<div className={styles.tableArea}>
 				<DataTable category={category} data={displayData} totalItems={totalCount} loading={loading} error={error} />
 				{!loading && !error && totalPages > 1 && <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />}

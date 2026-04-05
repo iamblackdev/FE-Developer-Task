@@ -92,36 +92,27 @@ describe('Controls', () => {
 
 	describe('sort select', () => {
 		it('shows "Default" as selected when sort and order are empty', () => {
-			renderControls({ sort: '', order: '' });
+			renderControls({ order: '' });
 			expect(screen.getByRole('combobox', { name: /sort/i })).toHaveValue('default');
 		});
 
-		it('reflects an active sort+order pair as the selected option', () => {
-			renderControls({ sort: 'name', order: 'asc' });
-			expect(screen.getByRole('combobox', { name: /sort/i })).toHaveValue('name-asc');
+		it('reflects an active order pair as the selected option', () => {
+			renderControls({ order: 'asc' });
+			expect(screen.getByRole('combobox', { name: /sort/i })).toHaveValue('asc');
 		});
 
-		it('calls onSortChange with the split field and direction', async () => {
+		it('calls onSortChange with the direction selected', async () => {
 			const onSortChange = jest.fn();
 			renderControls({ onSortChange });
-			await user.selectOptions(screen.getByRole('combobox', { name: /sort/i }), 'name-desc');
-			expect(onSortChange).toHaveBeenCalledWith('name', 'desc');
+			await user.selectOptions(screen.getByRole('combobox', { name: /sort/i }), 'desc');
+			expect(onSortChange).toHaveBeenCalledWith('desc');
 		});
 
 		it('calls onSortChange with empty strings when reset to Default', async () => {
 			const onSortChange = jest.fn();
-			renderControls({ sort: 'name', order: 'asc', onSortChange });
+			renderControls({ order: 'asc', onSortChange });
 			await user.selectOptions(screen.getByRole('combobox', { name: /sort/i }), 'default');
-			expect(onSortChange).toHaveBeenCalledWith('', '');
-		});
-
-		it('shows Title-based options for the films category', () => {
-			renderControls({ category: 'films' });
-			const select = screen.getByRole('combobox', { name: /sort/i }) as HTMLSelectElement;
-			const values = Array.from(select.options).map((o) => o.value);
-			expect(values).toContain('title-asc');
-			expect(values).toContain('title-desc');
-			expect(values).not.toContain('name-asc');
+			expect(onSortChange).toHaveBeenCalledWith('');
 		});
 	});
 
@@ -152,11 +143,9 @@ describe('Controls', () => {
 
 		it('all interactive controls are in the natural tab order', () => {
 			renderControls();
-			[
-				screen.getByRole('combobox', { name: /category/i }),
-				screen.getByRole('searchbox', { name: /search/i }),
-				screen.getByRole('combobox', { name: /sort/i }),
-			].forEach((el) => expect(el).not.toHaveAttribute('tabindex', '-1'));
+			[screen.getByRole('combobox', { name: /category/i }), screen.getByRole('searchbox', { name: /search/i }), screen.getByRole('combobox', { name: /sort/i })].forEach((el) =>
+				expect(el).not.toHaveAttribute('tabindex', '-1'),
+			);
 		});
 	});
 });

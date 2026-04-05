@@ -11,16 +11,14 @@ const CATEGORIES: SwapiCategory[] = ['films', 'people', 'planets', 'species', 's
 interface Props {
 	category: SwapiCategory;
 	search: string;
-	sort: string;
 	order: string;
 	recent: string;
 	onCategoryChange: (cat: SwapiCategory) => void;
 	onSearchChange: (value: string) => void;
-	/** Receives the split sort field and order direction. Pass ('', '') to reset. */
-	onSortChange: (sort: string, order: string) => void;
+	onSortChange: (order: string) => void;
 }
 
-export default function Controls({ category, search, sort, order, recent, onCategoryChange, onSearchChange, onSortChange }: Props) {
+export default function Controls({ category, search, order, recent, onCategoryChange, onSearchChange, onSortChange }: Props) {
 	const sortOptions = getSortOptions(category);
 
 	// Local state drives the input immediately; the debounced value triggers onSearchChange.
@@ -38,16 +36,9 @@ export default function Controls({ category, search, sort, order, recent, onCate
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [debouncedSearch]);
 
-	// Reconstruct the combined select value from the two URL params.
-	const combinedSort = sort && order ? `${sort}-${order}` : 'default';
-
 	const handleSortChange = (value: string) => {
-		if (value === 'default') {
-			onSortChange('', '');
-		} else {
-			const lastDash = value.lastIndexOf('-');
-			onSortChange(value.slice(0, lastDash), value.slice(lastDash + 1));
-		}
+		if (value === 'default') onSortChange('');
+		else onSortChange(value);
 	};
 
 	return (
@@ -86,7 +77,7 @@ export default function Controls({ category, search, sort, order, recent, onCate
 						<label htmlFor="sort-select" className={styles.label}>
 							Sort
 						</label>
-						<select id="sort-select" className={styles.select} value={combinedSort} onChange={(e) => handleSortChange(e.target.value)}>
+						<select id="sort-select" className={styles.select} value={order} onChange={(e) => handleSortChange(e.target.value)}>
 							{sortOptions.map((opt) => (
 								<option key={opt.value} value={opt.value}>
 									{opt.label}
