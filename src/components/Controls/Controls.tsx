@@ -1,8 +1,10 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import type { SwapiCategory } from '@/types';
 import styles from './Controls.module.css';
 import { getSortOptions } from '@/lib/helper';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const CATEGORIES: SwapiCategory[] = ['films', 'people', 'planets', 'species', 'starships', 'vehicles'];
 
@@ -21,6 +23,21 @@ interface Props {
 export default function Controls({ category, search, sort, order, recent, onCategoryChange, onSearchChange, onSortChange }: Props) {
 	const sortOptions = getSortOptions(category);
 
+	// Local state drives the input immediately; the debounced value triggers onSearchChange.
+	const [inputValue, setInputValue] = useState(search);
+	const debouncedSearch = useDebounce(inputValue, 300);
+
+	// Sync external search (e.g. URL change) back into local input.
+	useEffect(() => {
+		setInputValue(search);
+	}, [search]);
+
+	// Fire the URL update only after the user has stopped typing for 300ms.
+	useEffect(() => {
+		onSearchChange(debouncedSearch);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [debouncedSearch]);
+
 	// Reconstruct the combined select value from the two URL params.
 	const combinedSort = sort && order ? `${sort}-${order}` : 'default';
 
@@ -28,7 +45,6 @@ export default function Controls({ category, search, sort, order, recent, onCate
 		if (value === 'default') {
 			onSortChange('', '');
 		} else {
-			// Values are like 'name-asc', 'title-desc' — split on the last '-'.
 			const lastDash = value.lastIndexOf('-');
 			onSortChange(value.slice(0, lastDash), value.slice(lastDash + 1));
 		}
@@ -60,8 +76,8 @@ export default function Controls({ category, search, sort, order, recent, onCate
 							type="search"
 							className={styles.input}
 							placeholder="Search by name or title"
-							value={search}
-							onChange={(e) => onSearchChange(e.target.value)}
+							value={inputValue}
+							onChange={(e) => setInputValue(e.target.value)}
 							autoComplete="off"
 						/>
 					</div>
