@@ -1,7 +1,6 @@
 'use client';
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
-import type { SwapiCategory } from '@/types';
 import { fetchPage } from '@/lib/swapi';
 import Controls from '@/components/Controls/Controls';
 import DataTable from '@/components/DataTable/DataTable';
@@ -52,16 +51,7 @@ function HomeInner() {
 
 	return (
 		<main className={styles.main}>
-			<Controls
-				category={category}
-				search={search}
-				sort={sort}
-				order={order}
-				recent={recent}
-				onCategoryChange={setCategory}
-				onSearchChange={setSearch}
-				onSortChange={setSort}
-			/>
+			<Controls category={category} search={search} sort={sort} order={order} recent={recent} onCategoryChange={setCategory} onSearchChange={setSearch} onSortChange={setSort} />
 			<div className={styles.tableArea}>
 				<DataTable category={category} data={displayData} totalItems={totalCount} loading={loading} error={error} />
 				{!loading && !error && totalPages > 1 && <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />}

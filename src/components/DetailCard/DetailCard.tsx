@@ -42,6 +42,7 @@ export default function DetailCard({ fieldKey, value }: Props) {
 
 		// Plain value
 		return <span className={styles.value}>{value === null || value === undefined || value === '' ? '—' : String(value)}</span>;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [value]);
 
 	return (
