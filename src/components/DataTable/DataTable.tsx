@@ -80,9 +80,6 @@ export default function DataTable({ category, data, totalItems, loading, error }
 					</tbody>
 				</table>
 			</div>
-			<p className={styles.count} aria-live="polite">
-				Showing {data.length} of {totalItems} result{totalItems !== 1 ? 's' : ''}
-			</p>
 		</div>
 	);
 }

@@ -1,7 +1,6 @@
-import Link from 'next/link';
-import { extractPath, isSwapiUrl } from '@/lib/swapi';
+import { isSwapiUrl } from '@/lib/swapi';
 import styles from './DetailCard.module.css';
-import { formatDate, isSwapiUrlArray } from '@/lib/helper';
+import { formatDate, formatFieldName, isSwapiUrlArray } from '@/lib/helper';
 import { useMemo } from 'react';
 import UrlChip from '../UrlChip/UrlChip';
 
@@ -47,7 +46,7 @@ export default function DetailCard({ fieldKey, value }: Props) {
 
 	return (
 		<div className={styles.card}>
-			<dt className={styles.label}>{fieldKey}</dt>
+			<dt className={styles.label}>{formatFieldName(fieldKey)}</dt>
 			<dd className={styles.value}>{renderValue}</dd>
 		</div>
 	);
