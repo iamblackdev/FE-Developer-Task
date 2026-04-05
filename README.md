@@ -2,7 +2,7 @@
 
 A Next.js + TypeScript web application for browsing, searching, sorting, and paginating through Star Wars universe data, powered by the [SWAPI](https://swapi.dev) public API.
 
-[Live Demo](#) — to be updated with the deployed URL
+[Live Demo](https://fe-developer-task.vercel.app/) — to be updated with the deployed URL
 
 ---
 
