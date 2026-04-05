@@ -128,3 +128,15 @@ export interface CategoryState {
   search: string;
   sort: string;
 }
+
+export interface AppUrlParams {
+  category: SwapiCategory;
+  search: string;
+  /** Sort field: 'name', 'title', or '' for default */
+  sort: string;
+  /** Sort direction: 'asc', 'desc', or '' for default */
+  order: string;
+  page: number;
+  /** Most recently visited category before the current one */
+  recent: string;
+}

@@ -1,5 +1,8 @@
 import { SwapiCategory } from '@/types';
+import type { AppUrlParams } from '@/types';
 import { BASE_URL } from './swapi';
+import { DEFAULT_CATEGORY, DEFAULT_PAGE } from './data';
+import { type useSearchParams } from 'next/navigation';
 
 /**
  * Converts a snake_case field name to a Title Case label.
@@ -80,29 +83,24 @@ export function getTotalPages(count: number, pageSize: number): number {
 }
 
 /**
- * Reads a JSON-serialised value from localStorage.
- * Returns null if the key is absent, the value is malformed, or
- * localStorage is unavailable (e.g. SSR, private-browsing quota).
+ * Constructs the landing page URL from a full AppUrlParams object.
+ * Defaults are omitted to keep URLs clean:
+ *   - category omitted when it equals DEFAULT_CATEGORY
+ *   - search omitted when empty
+ *   - sort/order omitted when empty
+ *   - page omitted when it equals DEFAULT_PAGE
+ *   - recent omitted when empty
  */
-export function readFromStorage<T>(key: string): T | null {
-	try {
-		const raw = localStorage.getItem(key);
-		if (raw === null) return null;
-		return JSON.parse(raw) as T;
-	} catch {
-		return null;
-	}
-}
-
-/**
- * Serialises a value to JSON and writes it to localStorage.
- */
-export function writeToStorage<T>(key: string, value: T): void {
-	try {
-		localStorage.setItem(key, JSON.stringify(value));
-	} catch {
-		// Unavailable — no-op
-	}
+export function buildAppUrl(params: AppUrlParams): string {
+	const p = new URLSearchParams();
+	if (params.category !== DEFAULT_CATEGORY) p.set('category', params.category);
+	if (params.search) p.set('search', params.search);
+	if (params.sort) p.set('sort', params.sort);
+	if (params.order) p.set('order', params.order);
+	if (params.page !== DEFAULT_PAGE) p.set('page', String(params.page));
+	if (params.recent) p.set('recent', params.recent);
+	const qs = p.toString();
+	return qs ? `/?${qs}` : '/';
 }
 
 /**
@@ -116,3 +114,13 @@ export function buildSwapiUrl(category: string, page: number, search?: string): 
 	}
 	return `${BASE_URL}/${category}/?${params.toString()}`;
 }
+
+export const readParams = (searchParams: ReturnType<typeof useSearchParams>): AppUrlParams => {
+	const category = (searchParams.get('category') ?? DEFAULT_CATEGORY) as SwapiCategory;
+	const search = searchParams.get('search') ?? '';
+	const sort = searchParams.get('sort') ?? '';
+	const order = searchParams.get('order') ?? '';
+	const page = Number(searchParams.get('page') ?? DEFAULT_PAGE);
+	const recent = searchParams.get('recent') ?? '';
+	return { category, search, sort, order, page, recent };
+};

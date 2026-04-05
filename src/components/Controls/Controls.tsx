@@ -10,13 +10,29 @@ interface Props {
 	category: SwapiCategory;
 	search: string;
 	sort: string;
+	order: string;
+	recent: string;
 	onCategoryChange: (cat: SwapiCategory) => void;
 	onSearchChange: (value: string) => void;
-	onSortChange: (value: string) => void;
+	/** Receives the split sort field and order direction. Pass ('', '') to reset. */
+	onSortChange: (sort: string, order: string) => void;
 }
 
-export default function Controls({ category, search, sort, onCategoryChange, onSearchChange, onSortChange }: Props) {
+export default function Controls({ category, search, sort, order, recent, onCategoryChange, onSearchChange, onSortChange }: Props) {
 	const sortOptions = getSortOptions(category);
+
+	// Reconstruct the combined select value from the two URL params.
+	const combinedSort = sort && order ? `${sort}-${order}` : 'default';
+
+	const handleSortChange = (value: string) => {
+		if (value === 'default') {
+			onSortChange('', '');
+		} else {
+			// Values are like 'name-asc', 'title-desc' — split on the last '-'.
+			const lastDash = value.lastIndexOf('-');
+			onSortChange(value.slice(0, lastDash), value.slice(lastDash + 1));
+		}
+	};
 
 	return (
 		<div className={styles.bar}>
@@ -43,7 +59,7 @@ export default function Controls({ category, search, sort, onCategoryChange, onS
 							id="search-input"
 							type="search"
 							className={styles.input}
-							placeholder={'Search by name or title'}
+							placeholder="Search by name or title"
 							value={search}
 							onChange={(e) => onSearchChange(e.target.value)}
 							autoComplete="off"
@@ -54,7 +70,7 @@ export default function Controls({ category, search, sort, onCategoryChange, onS
 						<label htmlFor="sort-select" className={styles.label}>
 							Sort
 						</label>
-						<select id="sort-select" className={styles.select} value={sort} onChange={(e) => onSortChange(e.target.value)}>
+						<select id="sort-select" className={styles.select} value={combinedSort} onChange={(e) => handleSortChange(e.target.value)}>
 							{sortOptions.map((opt) => (
 								<option key={opt.value} value={opt.value}>
 									{opt.label}
@@ -63,6 +79,13 @@ export default function Controls({ category, search, sort, onCategoryChange, onS
 						</select>
 					</div>
 				</div>
+
+				{recent && (
+					<div className={styles.badgeGroup}>
+						<span className={styles.badgeLabel}>Recent</span>
+						<span className={styles.badge}>{recent}</span>
+					</div>
+				)}
 			</div>
 		</div>
 	);
